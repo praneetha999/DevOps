@@ -1,13 +1,20 @@
-# Step 1: Build the React app
-FROM node:18 AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+# Use official Node.js 18 image
+FROM node:18
 
-# Step 2: Serve the build using Nginx
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json if available
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy all app files
+COPY . .
+
+# Expose port 2699
+EXPOSE 2699
+
+# Start the app
+CMD ["npm", "start"]
