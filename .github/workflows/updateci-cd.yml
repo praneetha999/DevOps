@@ -1,0 +1,46 @@
+name: CI/CD Pipeline for React and Node
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    # Build React app
+    - name: Build React App
+      working-directory: react-frontend
+      run: |
+        npm install
+        npm run build
+
+    # Build Docker Image for React
+    - name: Build Docker Image - React
+      run: docker build -t praneetha2699/react-frontend:latest ./react-frontend
+
+    # Build Docker Image for Node
+    - name: Build Docker Image - Node
+      run: docker build -t praneetha2699/node-backend:latest ./node-backend
+
+    # Login to Docker Hub
+    - name: Docker Hub Login
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    # Push React Image
+    - name: Push React Image to Docker Hub
+      run: docker push praneetha2699/react-frontend:latest
+
+    # Push Node Image
+    - name: Push Node Image to Docker Hub
+      run: docker push praneetha2699/node-backend:latest
